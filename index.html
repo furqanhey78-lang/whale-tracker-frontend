@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TerminalX | Institutional Derivatives & Flow Analytics</title>
+    <title>SUPRIM | Institutional Derivatives & Flow Analytics</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap');
@@ -18,7 +18,7 @@
     <header class="w-full max-w-7xl flex justify-between items-center py-4 mb-6 border-b border-slate-800">
         <div class="flex items-center space-x-3">
             <div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
-            <span class="text-lg font-extrabold tracking-wider text-white glow">TERMINAL<span class="text-sky-400">X</span></span>
+            <span class="text-lg font-extrabold tracking-wider text-white glow">SUPR<span class="text-sky-400">IM</span></span>
             <span class="text-xs px-2.5 py-0.5 bg-sky-500/10 text-sky-400 border border-sky-500/20 rounded-full font-semibold">PRO V1.0</span>
         </div>
         <div class="flex items-center space-x-3 text-xs">
@@ -103,7 +103,7 @@
             <div class="flex items-center space-x-3 mb-4">
                 <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 font-bold text-lg">👑</div>
                 <div>
-                    <h3 class="text-base font-bold text-white">Unlock TerminalX VIP Access</h3>
+                    <h3 class="text-base font-bold text-white">Unlock SUPRIM VIP Access</h3>
                     <p class="text-xs text-slate-400">Instant VIP Discord Webhook & Real-Time Alerts</p>
                 </div>
             </div>
@@ -181,7 +181,6 @@
         function switchTab(tab) {
             currentTab = tab;
             
-            // Reset tab styles
             ['whales', 'oi', 'etf', 'liquidations'].forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 if(t === tab) {
@@ -200,7 +199,6 @@
             const headers = document.getElementById("table-headers");
             
             try {
-                // Fetch latest Open Interest metric for top card
                 const oiRes = await fetch(`${SUPABASE_URL}/rest/v1/derivatives_metrics?select=value&symbol=eq.BTCUSDT&order=created_at.desc&limit=1`, {
                     headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
                 });
@@ -270,62 +268,3 @@
                         tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">Polling backend Open Interest data...</td></tr>`;
                         return;
                     }
-
-                    data.forEach(item => {
-                        const timeStr = new Date(item.created_at).toLocaleString();
-                        const row = document.createElement("tr");
-                        row.className = "hover:bg-slate-800/30 transition";
-                        row.innerHTML = `
-                            <td class="p-4 font-semibold text-sky-400">${item.symbol}</td>
-                            <td class="p-4 text-xs"><span class="px-2 py-1 bg-purple-500/10 text-purple-400 rounded border border-purple-500/20">${item.metric_type}</span></td>
-                            <td class="p-4 font-bold text-emerald-400">${Number(item.value).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                            <td class="p-4 text-xs text-slate-400">Binance Futures WebSocket/API</td>
-                            <td class="p-4 text-xs text-slate-500 text-right">${timeStr}</td>
-                        `;
-                        tbody.appendChild(row);
-                    });
-
-                } else if (currentTab === 'etf') {
-                    title.innerText = "Spot Bitcoin & Ethereum ETF Net Capital Flows";
-                    headers.innerHTML = `
-                        <th class="p-4">ETF Issuer</th>
-                        <th class="p-4">Ticker</th>
-                        <th class="p-4">Daily Net Flow (USD)</th>
-                        <th class="p-4">Total AUM</th>
-                        <th class="p-4 text-right">Status</th>
-                    `;
-                    
-                    tbody.innerHTML = `
-                        <tr class="hover:bg-slate-800/30 transition"><td class="p-4 font-semibold text-sky-400">BlackRock iShares</td><td class="p-4">IBIT</td><td class="p-4 font-bold text-emerald-400">+$245.8M</td><td class="p-4 text-slate-300">$48.2B</td><td class="p-4 text-right text-emerald-400">Inflow Active</td></tr>
-                        <tr class="hover:bg-slate-800/30 transition"><td class="p-4 font-semibold text-sky-400">Fidelity Wise Origin</td><td class="p-4">FBTC</td><td class="p-4 font-bold text-emerald-400">+$92.1M</td><td class="p-4 text-slate-300">$18.9B</td><td class="p-4 text-right text-emerald-400">Inflow Active</td></tr>
-                        <tr class="hover:bg-slate-800/30 transition"><td class="p-4 font-semibold text-sky-400">ARK 21Shares</td><td class="p-4">ARKB</td><td class="p-4 font-bold text-red-400">-$14.5M</td><td class="p-4 text-slate-300">$3.4B</td><td class="p-4 text-right text-red-400">Outflow</td></tr>
-                        <tr class="hover:bg-slate-800/30 transition"><td class="p-4 font-semibold text-sky-400">Grayscale Bitcoin Trust</td><td class="p-4">GBTC</td><td class="p-4 font-bold text-red-400">-$42.0M</td><td class="p-4 text-slate-300">$14.1B</td><td class="p-4 text-right text-red-400">Outflow</td></tr>
-                    `;
-
-                } else if (currentTab === 'liquidations') {
-                    title.innerText = "Real-Time Exchange Liquidation Feed";
-                    headers.innerHTML = `
-                        <th class="p-4">Asset / Pair</th>
-                        <th class="p-4">Position Side</th>
-                        <th class="p-4">Liquidation Size</th>
-                        <th class="p-4">Exchange</th>
-                        <th class="p-4 text-right">Time</th>
-                    `;
-
-                    tbody.innerHTML = `
-                        <tr class="hover:bg-slate-800/30 transition"><td class="p-4 font-semibold text-sky-400">BTCUSDT</td><td class="p-4"><span class="px-2 py-1 bg-red-500/10 text-red-400 rounded text-xs">Long Liquidated</span></td><td class="p-4 font-bold text-red-400">$1,420,500</td><td class="p-4 text-slate-400">Binance</td><td class="p-4 text-xs text-slate-500 text-right">Just now</td></tr>
-                        <tr class="hover:bg-slate-800/30 transition"><td class="p-4 font-semibold text-sky-400">ETHUSDT</td><td class="p-4"><span class="px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded text-xs">Short Liquidated</span></td><td class="p-4 font-bold text-emerald-400">$845,200</td><td class="p-4 text-slate-400">Bybit</td><td class="p-4 text-xs text-slate-500 text-right">1m ago</td></tr>
-                        <tr class="hover:bg-slate-800/30 transition"><td class="p-4 font-semibold text-sky-400">SOLUSDT</td><td class="p-4"><span class="px-2 py-1 bg-red-500/10 text-red-400 rounded text-xs">Long Liquidated</span></td><td class="p-4 font-bold text-red-400">$512,000</td><td class="p-4 text-slate-400">Binance</td><td class="p-4 text-xs text-slate-500 text-right">3m ago</td></tr>
-                    `;
-                }
-
-            } catch (err) {
-                console.error("Terminal fetch error:", err);
-            }
-        }
-
-        fetchTerminalData();
-        setInterval(fetchTerminalData, 15000);
-    </script>
-</body>
-</html>
