@@ -30,7 +30,7 @@
     <!-- Main Terminal Container -->
     <main class="w-full max-w-7xl space-y-6">
         
-        <!-- Top Metrics Bar (CoinGlass Style) -->
+        <!-- Top Metrics Bar -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="card-glass p-4 rounded-xl border-l-4 border-sky-500">
                 <p class="text-xs text-slate-400 uppercase tracking-wider">BTC Open Interest</p>
@@ -91,14 +91,53 @@
         </div>
     </main>
 
-    <!-- Script to Populate Terminal Data -->
+    <!-- Upgrade Modal -->
+    <div id="cryptoModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="card-glass max-w-md w-full p-6 rounded-2xl border border-slate-700 shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold">✕</button>
+            
+            <h3 class="text-lg font-bold text-white mb-2">Upgrade to TerminalX Pro</h3>
+            <p class="text-xs text-slate-400 mb-4">Get instant real-time webhook alerts & advanced analytics. Send $29 equivalent in ETH or USDT to:</p>
+            
+            <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 mb-4 text-center">
+                <p class="text-xs text-slate-500 mb-1">Receiving Wallet Address (Ethereum / Base / Arbitrum)</p>
+                <p class="text-xs font-mono text-sky-400 select-all font-semibold">0x28C6c06298d514Db089934071355E5743bf21d60</p>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Your Discord Username</label>
+                    <input type="text" id="discordUser" placeholder="e.g. username#0000" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Transaction Hash (TxID)</label>
+                    <input type="text" id="txHash" placeholder="0x..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-sky-500">
+                </div>
+                <button onclick="submitPayment()" class="w-full py-2.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold rounded-lg text-xs transition mt-2">Submit Payment Proof</button>
+            </div>
+            
+            <p id="successMsg" class="text-xs text-emerald-400 text-center mt-3 hidden">✅ Proof submitted! We will verify and grant access within 1 hour.</p>
+        </div>
+    </div>
+
+    <!-- Script to Populate Terminal Data & Modal -->
     <script>
         const SUPABASE_URL = "https://wvjizynekngngsnxvebx.supabase.co";
         const SUPABASE_KEY = "sb_publishable_GJuByFQY7fvX7LjC6TH_-g_VNVEP...";
 
+        function openModal() { document.getElementById("cryptoModal").classList.remove("hidden"); }
+        function closeModal() { document.getElementById("cryptoModal").classList.add("hidden"); }
+        
+        function submitPayment() {
+            const user = document.getElementById("discordUser").value;
+            const hash = document.getElementById("txHash").value;
+            if(!user || !hash) { alert("Please fill in both fields."); return; }
+            document.getElementById("successMsg").classList.remove("hidden");
+            setTimeout(closeModal, 3000);
+        }
+
         async function fetchTerminalData() {
             try {
-                // Fetch both whale transactions and derivatives metrics
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/whale_txs?select=*&order=created_at.desc&limit=20`, {
                     headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
                 });
