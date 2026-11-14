@@ -24,46 +24,29 @@
             <div class="flex items-center space-x-2">
                 <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse"></div>
                 <span class="text-base font-black tracking-wider text-white">SUPR<span class="text-blue-500">IM</span></span>
-                <span class="text-[10px] px-2 py-0.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded font-semibold">TERMINAL V2</span>
+                <span class="text-[10px] px-2 py-0.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded font-semibold">TERMINAL V2.1</span>
             </div>
             <nav class="hidden md:flex space-x-1 text-xs font-semibold">
-                <button onclick="switchCategory('stocks')" id="cat-stocks" class="px-3 py-1.5 rounded bg-blue-600 text-white transition">Stock Screener</button>
-                <button onclick="switchCategory('crypto')" id="cat-crypto" class="px-3 py-1.5 rounded text-slate-400 hover:text-white transition">Crypto Derivatives</button>
-                <button onclick="switchCategory('whales')" id="cat-whales" class="px-3 py-1.5 rounded text-slate-400 hover:text-white transition">Whale Flows</button>
+                <button onclick="switchCategory('crypto')" id="cat-crypto" class="px-3 py-1.5 rounded bg-blue-600 text-white transition">Live Crypto Markets</button>
+                <button onclick="switchCategory('whales')" id="cat-whales" class="px-3 py-1.5 rounded text-slate-400 hover:text-white transition">Supabase Whale Flows</button>
+                <button onclick="switchCategory('oi')" id="cat-oi" class="px-3 py-1.5 rounded text-slate-400 hover:text-white transition">Open Interest Logs</button>
             </nav>
         </div>
         <div class="flex items-center space-x-3 text-xs">
-            <span class="hidden lg:inline text-slate-400">🟢 Database: Live</span>
+            <span class="hidden lg:inline text-emerald-400 font-mono">🟢 Live API Connected</span>
             <button onclick="openModal()" class="px-4 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded hover:opacity-90 transition shadow-md">👑 Upgrade VIP ($29)</button>
         </div>
     </header>
 
-    <!-- Filter & Toolbar Header (TradingView Style) -->
+    <!-- Filter & Toolbar Header -->
     <div class="bg-[#181c25] border-b border-[#2a2e39] px-4 py-3 space-y-2.5">
-        <!-- Filter Pills Bar -->
         <div class="flex items-center space-x-2 overflow-x-auto pb-1 text-xs font-medium">
             <button class="tv-button px-3 py-1.5 rounded flex items-center space-x-1.5 whitespace-nowrap">
-                <span>🇺🇸 Market: US</span>
+                <span>🌐 Exchange: Binance & Supabase</span>
             </button>
-            <button onclick="filterBySector('All')" id="sec-all" class="px-3 py-1.5 rounded bg-blue-600/20 text-blue-400 border border-blue-500/30 whitespace-nowrap">All Sectors</button>
-            <button onclick="filterBySector('Technology')" id="sec-tech" class="tv-button px-3 py-1.5 rounded whitespace-nowrap">Technology</button>
-            <button onclick="filterBySector('Semiconductors')" id="sec-semi" class="tv-button px-3 py-1.5 rounded whitespace-nowrap">Semiconductors</button>
-            <button onclick="filterBySector('Crypto')" id="sec-crypto" class="tv-button px-3 py-1.5 rounded whitespace-nowrap">Cryptocurrency</button>
-            <button onclick="filterBySector('EV')" id="sec-ev" class="tv-button px-3 py-1.5 rounded whitespace-nowrap">EV & Energy</button>
-            
-            <div class="h-4 w-[1px] bg-[#2a2e39] mx-1"></div>
-            
             <div class="relative">
-                <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Search symbol or company..." class="tv-input px-3 py-1.5 rounded text-xs w-56 placeholder-slate-500">
+                <input type="text" id="searchInput" oninput="loadTerminalData()" placeholder="Filter symbols..." class="tv-input px-3 py-1.5 rounded text-xs w-56 placeholder-slate-500">
             </div>
-        </div>
-
-        <!-- Sub-Tabs Bar -->
-        <div class="flex items-center space-x-6 overflow-x-auto text-xs font-semibold text-slate-400 pt-1">
-            <button onclick="switchSubTab('overview')" id="tab-overview" class="text-blue-500 border-b-2 border-blue-500 pb-2 whitespace-nowrap">Overview</button>
-            <button onclick="switchSubTab('performance')" id="tab-performance" class="hover:text-white pb-2 whitespace-nowrap transition">Performance</button>
-            <button onclick="switchSubTab('valuation')" id="tab-valuation" class="hover:text-white pb-2 whitespace-nowrap transition">Valuation & P/E</button>
-            <button onclick="switchSubTab('dividends')" id="tab-dividends" class="hover:text-white pb-2 whitespace-nowrap transition">Dividends & Yield</button>
         </div>
     </div>
 
@@ -72,11 +55,11 @@
         <div class="tv-card rounded-lg overflow-hidden shadow-2xl">
             <div class="px-4 py-3 border-b border-[#2a2e39] flex justify-between items-center bg-[#181c25]">
                 <div class="flex items-center space-x-2">
-                    <span id="table-category-title" class="text-xs font-bold uppercase tracking-wider text-slate-200">US Equities Screener</span>
-                    <span id="row-count" class="text-[10px] bg-[#2a2e39] px-2 py-0.5 rounded text-slate-400 font-mono">14 items</span>
+                    <span id="table-category-title" class="text-xs font-bold uppercase tracking-wider text-slate-200">Live Crypto Market Feed</span>
+                    <span id="row-count" class="text-[10px] bg-[#2a2e39] px-2 py-0.5 rounded text-slate-400 font-mono">Loading...</span>
                 </div>
-                <button onclick="loadScreenerData()" class="tv-button text-xs px-3 py-1 rounded flex items-center space-x-1 font-mono">
-                    <span>🔄 Refresh Data</span>
+                <button onclick="loadTerminalData()" class="tv-button text-xs px-3 py-1 rounded flex items-center space-x-1 font-mono">
+                    <span>🔄 Refresh Feed</span>
                 </button>
             </div>
 
@@ -84,18 +67,15 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr id="table-headers" class="border-b border-[#2a2e39] text-[11px] text-slate-400 uppercase bg-[#181c25]/80 font-semibold">
-                            <th class="p-3.5">Symbol</th>
-                            <th class="p-3.5">Company Name</th>
-                            <th class="p-3.5 text-right">Price (USD)</th>
-                            <th class="p-3.5 text-right">Change %</th>
-                            <th class="p-3.5 text-right">Volume</th>
-                            <th class="p-3.5 text-right">Market Cap</th>
-                            <th class="p-3.5 text-right">P/E Ratio</th>
+                            <th class="p-3.5">Asset Pair</th>
+                            <th class="p-3.5 text-right">Live Price (USDT)</th>
+                            <th class="p-3.5 text-right">24h Volume</th>
+                            <th class="p-3.5 text-right">Source Status</th>
                             <th class="p-3.5 text-right">Action</th>
                         </tr>
                     </thead>
                     <tbody id="screener-tbody" class="divide-y divide-[#2a2e39]/60 text-xs tv-font">
-                        <!-- Populated by JS -->
+                        <tr><td colspan="5" class="p-8 text-center text-slate-500">Fetching live market feeds...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -119,14 +99,6 @@
                 <div class="flex justify-between items-center border-b border-[#2a2e39] pb-2">
                     <span class="text-slate-400">Access Fee:</span>
                     <span class="text-emerald-400 font-bold">$29.00 USD (ETH / USDT / USDC)</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-slate-400">Networks:</span>
-                    <div class="flex space-x-1">
-                        <span class="px-1.5 py-0.5 bg-blue-500/10 text-blue-400 rounded text-[10px]">Base</span>
-                        <span class="px-1.5 py-0.5 bg-indigo-500/10 text-indigo-400 rounded text-[10px]">Arbitrum</span>
-                        <span class="px-1.5 py-0.5 bg-purple-500/10 text-purple-400 rounded text-[10px]">Ethereum</span>
-                    </div>
                 </div>
             </div>
 
@@ -156,37 +128,11 @@
         </div>
     </div>
 
-    <!-- Frontend Controller Script -->
     <script>
         const SUPABASE_URL = "https://wvjizynekngngsnxvebx.supabase.co";
         const SUPABASE_KEY = "sb_publishable_GJuByFQY7fvX7LjC6TH_-g_VNVEP...";
 
-        let currentCategory = 'stocks';
-        let currentSector = 'All';
-        let currentSubTab = 'overview';
-        let searchQuery = '';
-
-        // Master Dataset representing TradingView Screener & Derivatives
-        const masterData = {
-            stocks: [
-                { symbol: 'AAPL', name: 'Apple Inc.', sector: 'Technology', price: 253.05, change: 0.80, volume: '21.72M', cap: '3.83T', pe: 41.69 },
-                { symbol: 'MSFT', name: 'Microsoft Corporation', sector: 'Technology', price: 453.51, change: 0.43, volume: '8.69M', cap: '3.37T', pe: 37.43 },
-                { symbol: 'NVDA', name: 'NVIDIA Corporation', sector: 'Semiconductors', price: 130.00, change: -1.52, volume: '186.82M', cap: '3.18T', pe: 51.21 },
-                { symbol: 'AMZN', name: 'Amazon.com, Inc.', sector: 'Technology', price: 232.18, change: -0.32, volume: '19.82M', cap: '2.44T', pe: 49.76 },
-                { symbol: 'GOOGL', name: 'Alphabet Inc. (Class A)', sector: 'Technology', price: 198.27, change: 0.06, volume: '14.2M', cap: '2.42T', pe: 26.30 },
-                { symbol: 'META', name: 'Meta Platforms, Inc.', sector: 'Technology', price: 621.17, change: -0.49, volume: '6.75M', cap: '1.57T', pe: 29.25 },
-                { symbol: 'TSLA', name: 'Tesla, Inc.', sector: 'EV', price: 474.83, change: 2.55, volume: '100.5M', cap: '1.52T', pe: 130.08 },
-                { symbol: 'AVGO', name: 'Broadcom Inc.', sector: 'Semiconductors', price: 236.39, change: -5.44, volume: '49.28M', cap: '1.1T', pe: 193.21 },
-                { symbol: 'PLTR', name: 'Palantir Technologies Inc.', sector: 'Technology', price: 45.60, change: 6.80, volume: '84.2M', cap: '102.5B', pe: 115.40 }
-            ],
-            crypto: [
-                { symbol: 'BTCUSDT', name: 'Bitcoin Perp', sector: 'Crypto', price: 91450.00, change: 2.10, volume: '$14.2B', cap: '1.81T', pe: 'N/A' },
-                { symbol: 'ETHUSDT', name: 'Ethereum Perp', sector: 'Crypto', price: 3380.00, change: 1.45, volume: '$8.4B', cap: '406B', pe: 'N/A' },
-                { symbol: 'SOLUSDT', name: 'Solana Perp', sector: 'Crypto', price: 215.40, change: 4.80, volume: '$4.1B', cap: '101B', pe: 'N/A' },
-                { symbol: 'XRPUSDT', name: 'Ripple Perp', sector: 'Crypto', price: 1.85, change: -2.10, volume: '$2.9B', cap: '105B', pe: 'N/A' }
-            ],
-            whales: []
-        };
+        let currentCategory = 'crypto';
 
         function openModal() { document.getElementById("cryptoModal").classList.remove("hidden"); }
         function closeModal() { document.getElementById("cryptoModal").classList.add("hidden"); }
@@ -208,7 +154,7 @@
 
         function switchCategory(cat) {
             currentCategory = cat;
-            ['stocks', 'crypto', 'whales'].forEach(c => {
+            ['crypto', 'whales', 'oi'].forEach(c => {
                 const btn = document.getElementById(`cat-${c}`);
                 if(c === cat) {
                     btn.className = "px-3 py-1.5 rounded bg-blue-600 text-white transition";
@@ -216,54 +162,70 @@
                     btn.className = "px-3 py-1.5 rounded text-slate-400 hover:text-white transition";
                 }
             });
-            loadScreenerData();
+            loadTerminalData();
         }
 
-        function filterBySector(sector) {
-            currentSector = sector;
-            ['all', 'tech', 'semi', 'crypto', 'ev'].forEach(s => {
-                const el = document.getElementById(`sec-${s}`);
-                if(el) el.className = "tv-button px-3 py-1.5 rounded whitespace-nowrap";
-            });
-            const activeId = sector === 'All' ? 'sec-all' : sector === 'Technology' ? 'sec-tech' : sector === 'Semiconductors' ? 'sec-semi' : sector === 'Crypto' ? 'sec-crypto' : 'sec-ev';
-            const activeEl = document.getElementById(activeId);
-            if(activeEl) activeEl.className = "px-3 py-1.5 rounded bg-blue-600/20 text-blue-400 border border-blue-500/30 whitespace-nowrap";
-            loadScreenerData();
-        }
-
-        function switchSubTab(tab) {
-            currentSubTab = tab;
-            ['overview', 'performance', 'valuation', 'dividends'].forEach(t => {
-                const el = document.getElementById(`tab-${t}`);
-                if(t === tab) {
-                    el.className = "text-blue-500 border-b-2 border-blue-500 pb-2 whitespace-nowrap";
-                } else {
-                    el.className = "hover:text-white pb-2 whitespace-nowrap transition text-slate-400";
-                }
-            });
-            loadScreenerData();
-        }
-
-        function handleSearch() {
-            searchQuery = document.getElementById("searchInput").value.toLowerCase();
-            loadScreenerData();
-        }
-
-        async function loadScreenerData() {
+        async function loadTerminalData() {
             const tbody = document.getElementById("screener-tbody");
             const headers = document.getElementById("table-headers");
             const title = document.getElementById("table-category-title");
             const countEl = document.getElementById("row-count");
+            const query = document.getElementById("searchInput").value.toLowerCase();
 
-            tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-500 font-mono">Loading market data...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 font-mono">Querying live data source...</td></tr>`;
 
-            if (currentCategory === 'whales') {
-                title.innerText = "Institutional Whale Wallet Transfers (>20 ETH)";
+            if (currentCategory === 'crypto') {
+                title.innerText = "Live Binance Crypto Spot Prices";
+                headers.innerHTML = `
+                    <th class="p-3.5">Pair</th>
+                    <th class="p-3.5 text-right">Live Price (USDT)</th>
+                    <th class="p-3.5 text-right">24h Change</th>
+                    <th class="p-3.5 text-right">Exchange Source</th>
+                    <th class="p-3.5 text-right">Action</th>
+                `;
+                try {
+                    const res = await fetch('https://api.binance.com/api/v3/ticker/24hr');
+                    const rawData = await res.json();
+                    // Filter for top pairs like BTC, ETH, SOL, XRP, DOGE, ADA
+                    const targetSymbols = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'XRPUSDT', 'DOGEUSDT', 'ADAUSDT', 'AVAXUSDT', 'LINKUSDT'];
+                    let data = rawData.filter(item => targetSymbols.includes(item.symbol));
+
+                    if (query) {
+                        data = data.filter(item => item.symbol.toLowerCase().includes(query));
+                    }
+
+                    countEl.innerText = `${data.length} pairs`;
+                    tbody.innerHTML = "";
+
+                    data.forEach(item => {
+                        const price = Number(item.lastPrice).toLocaleString(undefined, {minimumFractionDigits: 2});
+                        const change = parseFloat(item.priceChangePercent);
+                        const changeColor = change >= 0 ? 'text-emerald-400' : 'text-rose-400';
+                        const changeSign = change >= 0 ? '+' : '';
+
+                        const row = document.createElement("tr");
+                        row.className = "hover:bg-[#2a2e39]/40 transition";
+                        row.innerHTML = `
+                            <td class="p-3.5 font-bold text-blue-400">${item.symbol}</td>
+                            <td class="p-3.5 text-right font-bold text-white">$${price}</td>
+                            <td class="p-3.5 text-right font-bold ${changeColor}">${changeSign}${change.toFixed(2)}%</td>
+                            <td class="p-3.5 text-right text-slate-400">Binance REST API</td>
+                            <td class="p-3.5 text-right">
+                                <button onclick="openModal()" class="px-2.5 py-1 bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 rounded text-[11px] border border-blue-500/30 transition">Trade ⚡</button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } catch(e) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-rose-400">Failed to fetch public Binance ticker API.</td></tr>`;
+                }
+
+            } else if (currentCategory === 'whales') {
+                title.innerText = "Supabase Database: Whale Wallet Transfers (>20 ETH)";
                 headers.innerHTML = `
                     <th class="p-3.5">Entity / Wallet</th>
-                    <th class="p-3.5">Asset</th>
-                    <th class="p-3.5 text-right">Amount</th>
-                    <th class="p-3.5">Transaction Routing</th>
+                    <th class="p-3.5 text-right">ETH Amount</th>
+                    <th class="p-3.5">Routing</th>
                     <th class="p-3.5">Timestamp</th>
                     <th class="p-3.5 text-right">Explorer</th>
                 `;
@@ -276,7 +238,7 @@
                     countEl.innerText = `${data.length} records`;
 
                     if (!data || data.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">No whale transactions recorded yet.</td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">No records found in Supabase 'whale_txs' table yet. Make sure your Python backend is running and pushing data!</td></tr>`;
                         return;
                     }
 
@@ -286,7 +248,6 @@
                         row.className = "hover:bg-[#2a2e39]/40 transition";
                         row.innerHTML = `
                             <td class="p-3.5 font-bold text-blue-400">${tx.wallet_name || 'Whale Wallet'}</td>
-                            <td class="p-3.5 font-bold text-emerald-400">ETH</td>
                             <td class="p-3.5 text-right font-bold text-emerald-400">${Number(tx.eth_amount).toLocaleString(undefined, {minimumFractionDigits: 2})} ETH</td>
                             <td class="p-3.5 text-slate-400 font-mono text-[11px]">${tx.tx_from ? tx.tx_from.substring(0, 6) + '...' : '0x...'} ➔ ${tx.tx_to ? tx.tx_to.substring(0, 6) + '...' : '0x...'}</td>
                             <td class="p-3.5 text-slate-500">${time}</td>
@@ -297,123 +258,49 @@
                         tbody.appendChild(row);
                     });
                 } catch(e) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-rose-400">Error connecting to Supabase database.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-rose-400">Error connecting to Supabase database.</td></tr>`;
                 }
-                return;
-            }
 
-            // Stocks or Crypto Screener view
-            title.innerText = currentCategory === 'stocks' ? "US Equities Market Screener" : "Crypto Derivatives Screener";
-            
-            if (currentSubTab === 'overview') {
+            } else if (currentCategory === 'oi') {
+                title.innerText = "Supabase Database: Binance Futures Open Interest Logs";
                 headers.innerHTML = `
                     <th class="p-3.5">Symbol</th>
-                    <th class="p-3.5">Company Name</th>
-                    <th class="p-3.5 text-right">Price (USD)</th>
-                    <th class="p-3.5 text-right">Change %</th>
-                    <th class="p-3.5 text-right">Volume</th>
-                    <th class="p-3.5 text-right">Market Cap</th>
-                    <th class="p-3.5 text-right">P/E Ratio</th>
-                    <th class="p-3.5 text-right">Action</th>
+                    <th class="p-3.5">Metric Type</th>
+                    <th class="p-3.5 text-right">Open Interest Value</th>
+                    <th class="p-3.5 text-right">Timestamp</th>
                 `;
-            } else if (currentSubTab === 'performance') {
-                headers.innerHTML = `
-                    <th class="p-3.5">Symbol</th>
-                    <th class="p-3.5">Company Name</th>
-                    <th class="p-3.5 text-right">Price</th>
-                    <th class="p-3.5 text-right">1D Change</th>
-                    <th class="p-3.5 text-right">1W Trend</th>
-                    <th class="p-3.5 text-right">1M Momentum</th>
-                    <th class="p-3.5 text-right">RSI (14)</th>
-                `;
-            } else if (currentSubTab === 'valuation') {
-                headers.innerHTML = `
-                    <th class="p-3.5">Symbol</th>
-                    <th class="p-3.5">Company Name</th>
-                    <th class="p-3.5 text-right">Market Cap</th>
-                    <th class="p-3.5 text-right">P/E (TTM)</th>
-                    <th class="p-3.5 text-right">Forward P/E</th>
-                    <th class="p-3.5 text-right">Price / Book</th>
-                `;
-            } else {
-                headers.innerHTML = `
-                    <th class="p-3.5">Symbol</th>
-                    <th class="p-3.5">Company Name</th>
-                    <th class="p-3.5 text-right">Div Yield</th>
-                    <th class="p-3.5 text-right">Annual Payout</th>
-                    <th class="p-3.5 text-right">Ex-Dividend Date</th>
-                `;
-            }
+                try {
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/derivatives_metrics?select=*&order=created_at.desc&limit=25`, {
+                        headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
+                    });
+                    const data = await res.json();
+                    tbody.innerHTML = "";
+                    countEl.innerText = `${data.length} logs`;
 
-            let data = masterData[currentCategory];
-            if (currentSector !== 'All') {
-                data = data.filter(item => item.sector === currentSector);
-            }
-            if (searchQuery) {
-                data = data.filter(item => item.symbol.toLowerCase().includes(searchQuery) || item.name.toLowerCase().includes(searchQuery));
-            }
+                    if (!data || data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-500">No logs found in Supabase 'derivatives_metrics' table yet. Check your Render Python backend logs.</td></tr>`;
+                        return;
+                    }
 
-            countEl.innerText = `${data.length} items`;
-            tbody.innerHTML = "";
-
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-500">No assets match your filter criteria.</td></tr>`;
-                return;
-            }
-
-            data.forEach(item => {
-                const changeColor = item.change >= 0 ? 'text-emerald-400' : 'text-rose-400';
-                const changeSign = item.change >= 0 ? '+' : '';
-                const row = document.createElement("tr");
-                row.className = "hover:bg-[#2a2e39]/40 transition";
-
-                if (currentSubTab === 'overview') {
-                    row.innerHTML = `
-                        <td class="p-3.5 font-bold text-blue-400">${item.symbol}</td>
-                        <td class="p-3.5 font-medium text-slate-200">${item.name}</td>
-                        <td class="p-3.5 text-right font-bold text-white">$${item.price.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                        <td class="p-3.5 text-right font-bold ${changeColor}">${changeSign}${item.change}%</td>
-                        <td class="p-3.5 text-right text-slate-300">${item.volume}</td>
-                        <td class="p-3.5 text-right text-slate-300">${item.cap}</td>
-                        <td class="p-3.5 text-right text-slate-300">${item.pe}</td>
-                        <td class="p-3.5 text-right">
-                            <button onclick="openModal()" class="px-2.5 py-1 bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 rounded text-[11px] border border-blue-500/30 transition">Trade ⚡</button>
-                        </td>
-                    `;
-                } else if (currentSubTab === 'performance') {
-                    row.innerHTML = `
-                        <td class="p-3.5 font-bold text-blue-400">${item.symbol}</td>
-                        <td class="p-3.5 font-medium text-slate-200">${item.name}</td>
-                        <td class="p-3.5 text-right font-bold text-white">$${item.price.toLocaleString()}</td>
-                        <td class="p-3.5 text-right font-bold ${changeColor}">${changeSign}${item.change}%</td>
-                        <td class="p-3.5 text-right text-emerald-400">+3.45%</td>
-                        <td class="p-3.5 text-right text-emerald-400">+12.80%</td>
-                        <td class="p-3.5 text-right text-amber-400">64.2 (Bullish)</td>
-                    `;
-                } else if (currentSubTab === 'valuation') {
-                    row.innerHTML = `
-                        <td class="p-3.5 font-bold text-blue-400">${item.symbol}</td>
-                        <td class="p-3.5 font-medium text-slate-200">${item.name}</td>
-                        <td class="p-3.5 text-right text-slate-300">${item.cap}</td>
-                        <td class="p-3.5 text-right text-white">${item.pe}</td>
-                        <td class="p-3.5 text-right text-slate-300">${(Number(item.pe) * 0.85).toFixed(1)}</td>
-                        <td class="p-3.5 text-right text-slate-300">8.42</td>
-                    `;
-                } else {
-                    row.innerHTML = `
-                        <td class="p-3.5 font-bold text-blue-400">${item.symbol}</td>
-                        <td class="p-3.5 font-medium text-slate-200">${item.name}</td>
-                        <td class="p-3.5 text-right text-emerald-400">1.45%</td>
-                        <td class="p-3.5 text-right text-slate-300">$3.68 /sh</td>
-                        <td class="p-3.5 text-right text-slate-400">Nov 28, 2026</td>
-                    `;
+                    data.forEach(item => {
+                        const time = new Date(item.created_at).toLocaleString();
+                        const row = document.createElement("tr");
+                        row.className = "hover:bg-[#2a2e39]/40 transition";
+                        row.innerHTML = `
+                            <td class="p-3.5 font-bold text-blue-400">${item.symbol}</td>
+                            <td class="p-3.5"><span class="px-2 py-0.5 bg-purple-500/10 text-purple-400 rounded text-[10px]">${item.metric_type}</span></td>
+                            <td class="p-3.5 text-right font-bold text-emerald-400">${Number(item.value).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                            <td class="p-3.5 text-right text-slate-500">${time}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } catch(e) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-rose-400">Error connecting to Supabase.</td></tr>`;
                 }
-                tbody.appendChild(row);
-            });
+            }
         }
 
-        // Initial load
-        loadScreenerData();
+        loadTerminalData();
     </script>
 </body>
 </html>
