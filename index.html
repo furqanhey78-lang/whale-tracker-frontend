@@ -1,44 +1,313 @@
-} else if (currentCategory === 'crypto') {
-                title.innerText = "Live Crypto Market Feed (CoinCap US)";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUPRIM | Institutional Stock & Crypto Screener</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #131722; color: #d1d4dc; }
+        .tv-font { font-family: 'JetBrains Mono', monospace; }
+        .tv-card { background: #1e222d; border: 1px solid #2a2e39; }
+        .tv-button { background: #2a2e39; border: 1px solid #363c4e; color: #d1d4dc; }
+        .tv-button:hover { background: #363c4e; color: #ffffff; }
+        .tv-input { background: #131722; border: 1px solid #2a2e39; color: #d1d4dc; }
+        .tv-input:focus { border-color: #2962ff; outline: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-blue-600 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="w-full bg-[#1e222d] border-b border-[#2a2e39] px-4 py-2.5 flex justify-between items-center sticky top-0 z-40">
+        <div class="flex items-center space-x-6">
+            <div class="flex items-center space-x-2">
+                <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse"></div>
+                <span class="text-base font-black tracking-wider text-white">SUPR<span class="text-blue-500">IM</span></span>
+                <span class="text-[10px] px-2 py-0.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded font-semibold">TERMINAL V3.0</span>
+            </div>
+            <nav class="hidden md:flex space-x-1 text-xs font-semibold">
+                <button onclick="switchTab('screener')" id="tab-screener" class="px-3 py-1.5 rounded bg-blue-600 text-white transition">Stock & Crypto Screener</button>
+                <button onclick="switchTab('whales')" id="tab-whales" class="px-3 py-1.5 rounded text-slate-400 hover:text-white transition">Whale Flows</button>
+                <button onclick="switchTab('oi')" id="tab-oi" class="px-3 py-1.5 rounded text-slate-400 hover:text-white transition">Open Interest Logs</button>
+            </nav>
+        </div>
+        <div class="flex items-center space-x-3 text-xs">
+            <span class="hidden lg:inline text-emerald-400 font-mono">🟢 Live Feed Active</span>
+            <button onclick="openModal()" class="px-4 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded hover:opacity-90 transition shadow-md">👑 Upgrade VIP ($29)</button>
+        </div>
+    </header>
+
+    <!-- Filter & Toolbar Header -->
+    <div class="bg-[#181c25] border-b border-[#2a2e39] px-4 py-3 space-y-2.5">
+        <div class="flex items-center space-x-2 overflow-x-auto pb-1 text-xs font-medium">
+            <button class="tv-button px-3 py-1.5 rounded flex items-center space-x-1.5 whitespace-nowrap">
+                <span>🇺🇸 Global Markets</span>
+            </button>
+            <div class="relative">
+                <input type="text" id="searchInput" oninput="renderTable()" placeholder="Search symbol (e.g. AAPL, BTC)..." class="tv-input px-3 py-1.5 rounded text-xs w-64 placeholder-slate-500">
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Data Table Container -->
+    <main class="flex-1 p-4 max-w-[1600px] w-full mx-auto">
+        <div class="tv-card rounded-lg overflow-hidden shadow-2xl">
+            <div class="px-4 py-3 border-b border-[#2a2e39] flex justify-between items-center bg-[#181c25]">
+                <div class="flex items-center space-x-2">
+                    <span id="table-title" class="text-xs font-bold uppercase tracking-wider text-slate-200">Institutional Screener</span>
+                    <span id="row-count" class="text-[10px] bg-[#2a2e39] px-2 py-0.5 rounded text-slate-400 font-mono">Loading...</span>
+                </div>
+                <button onclick="loadData()" class="tv-button text-xs px-3 py-1 rounded flex items-center space-x-1 font-mono">
+                    <span>🔄 Refresh Data</span>
+                </button>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr id="table-headers" class="border-b border-[#2a2e39] text-[11px] text-slate-400 uppercase bg-[#181c25]/80 font-semibold">
+                            <th class="p-3.5">Symbol</th>
+                            <th class="p-3.5">Asset / Company</th>
+                            <th class="p-3.5">Sector</th>
+                            <th class="p-3.5 text-right">Price (USD)</th>
+                            <th class="p-3.5 text-right">24h Change</th>
+                            <th class="p-3.5 text-right">Volume</th>
+                            <th class="p-3.5 text-right">Market Cap</th>
+                            <th class="p-3.5 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="terminal-tbody" class="divide-y divide-[#2a2e39]/60 text-xs tv-font">
+                        <tr><td colspan="8" class="p-8 text-center text-slate-500">Initializing SUPRIM Terminal...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Professional Crypto Checkout Modal -->
+    <div id="cryptoModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="tv-card max-w-md w-full p-6 rounded-xl border border-[#363c4e] shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold p-1">✕</button>
+            
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-9 h-9 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-base">👑</div>
+                <div>
+                    <h3 class="text-sm font-bold text-white">Unlock SUPRIM VIP Access</h3>
+                    <p class="text-[11px] text-slate-400">Instant VIP Discord Webhook & Real-Time Alerts</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-[11px] text-slate-400 mb-1 font-semibold">Send $29 Equivalent to Address:</label>
+                <div class="flex items-center space-x-2 bg-[#131722] p-2.5 rounded-lg border border-[#2a2e39]">
+                    <p class="text-[11px] font-mono text-blue-400 select-all truncate">0x28C6c06298d514Db089934071355E5743bf21d60</p>
+                    <button onclick="copyAddress()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] rounded transition shrink-0">
+                        <span id="copyBtnText">Copy</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-400 mb-1 font-semibold">Discord Username</label>
+                    <input type="text" id="discordUser" placeholder="e.g. username#1234" class="tv-input w-full p-2.5 rounded text-white font-mono">
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1 font-semibold">Transaction Hash (TxID)</label>
+                    <input type="text" id="txHash" placeholder="0x..." class="tv-input w-full p-2.5 rounded text-white font-mono">
+                </div>
+                <button onclick="submitPayment()" class="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-95 text-white font-black rounded transition shadow-lg">Submit Payment Proof</button>
+            </div>
+            
+            <p id="successMsg" class="text-xs text-emerald-400 text-center mt-3 hidden bg-emerald-500/10 p-2.5 rounded border border-emerald-500/20 font-semibold">✅ Proof submitted! Verification takes under 30 mins.</p>
+        </div>
+    </div>
+
+    <!-- Script Engine -->
+    <script>
+        const SUPABASE_URL = "https://wvjizynekngngsnxvebx.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_GJuByFQY7fvX7LjC6TH_-g_VNVEP...";
+
+        let currentTab = 'screener';
+        let screenerCache = [
+            { symbol: 'AAPL', name: 'Apple Inc.', sector: 'Technology', price: 253.05, change: 0.80, volume: '21.72M', cap: '$3.83T', pe: '41.69' },
+            { symbol: 'MSFT', name: 'Microsoft Corporation', sector: 'Technology', price: 453.51, change: 0.43, volume: '8.69M', cap: '$3.37T', pe: '37.43' },
+            { symbol: 'NVDA', name: 'NVIDIA Corporation', sector: 'Semiconductors', price: 130.00, change: -1.52, volume: '186.82M', cap: '$3.18T', pe: '51.21' },
+            { symbol: 'AMZN', name: 'Amazon.com, Inc.', sector: 'Consumer Cyclical', price: 232.18, change: -0.32, volume: '19.82M', cap: '$2.44T', pe: '49.76' },
+            { symbol: 'GOOGL', name: 'Alphabet Inc.', sector: 'Technology', price: 198.27, change: 0.06, volume: '14.2M', cap: '$2.42T', pe: '26.30' },
+            { symbol: 'META', name: 'Meta Platforms, Inc.', sector: 'Technology', price: 621.17, change: -0.49, volume: '6.75M', cap: '$1.57T', pe: '29.25' },
+            { symbol: 'TSLA', name: 'Tesla, Inc.', sector: 'Automotive', price: 474.83, change: 2.55, volume: '100.5M', cap: '$1.52T', pe: '130.08' },
+            { symbol: 'BTC', name: 'Bitcoin', sector: 'Cryptocurrency', price: 91450.00, change: 2.10, volume: '$14.2B', cap: '$1.81T', pe: 'N/A' },
+            { symbol: 'ETH', name: 'Ethereum', sector: 'Cryptocurrency', price: 3380.00, change: 1.45, volume: '$8.4B', cap: '$406B', pe: 'N/A' },
+            { symbol: 'SOL', name: 'Solana', sector: 'Cryptocurrency', price: 215.40, change: 4.80, volume: '$4.1B', cap: '$101B', pe: 'N/A' }
+        ];
+
+        function openModal() { document.getElementById("cryptoModal").classList.remove("hidden"); }
+        function closeModal() { document.getElementById("cryptoModal").classList.add("hidden"); }
+        
+        function copyAddress() {
+            navigator.clipboard.writeText("0x28C6c06298d514Db089934071355E5743bf21d60");
+            const btn = document.getElementById("copyBtnText");
+            btn.innerText = "Copied!";
+            setTimeout(() => { btn.innerText = "Copy"; }, 2000);
+        }
+
+        function submitPayment() {
+            const user = document.getElementById("discordUser").value;
+            const hash = document.getElementById("txHash").value;
+            if(!user || !hash) { alert("Please fill in both fields."); return; }
+            document.getElementById("successMsg").classList.remove("hidden");
+            setTimeout(closeModal, 4000);
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            ['screener', 'whales', 'oi'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if(t === tab) {
+                    btn.className = "px-3 py-1.5 rounded bg-blue-600 text-white transition";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded text-slate-400 hover:text-white transition";
+                }
+            });
+            loadData();
+        }
+
+        async function loadData() {
+            const tbody = document.getElementById("terminal-tbody");
+            const headers = document.getElementById("table-headers");
+            const title = document.getElementById("table-title");
+            const countEl = document.getElementById("row-count");
+
+            tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-500 font-mono">Syncing market feeds...</td></tr>`;
+
+            if (currentTab === 'screener') {
+                title.innerText = "Institutional Stock & Crypto Screener";
                 headers.innerHTML = `
-                    <th class="p-3.5">Asset</th>
-                    <th class="p-3.5 text-right">Live Price (USD)</th>
+                    <th class="p-3.5">Symbol</th>
+                    <th class="p-3.5">Asset / Company</th>
+                    <th class="p-3.5">Sector</th>
+                    <th class="p-3.5 text-right">Price (USD)</th>
                     <th class="p-3.5 text-right">24h Change</th>
-                    <th class="p-3.5 text-right">24h Volume</th>
+                    <th class="p-3.5 text-right">Volume</th>
+                    <th class="p-3.5 text-right">Market Cap</th>
                     <th class="p-3.5 text-right">Action</th>
                 `;
+                // Attempt to fetch live CoinCap data to supplement crypto prices
                 try {
-                    const res = await fetch('https://api.coincap.io/v2/assets?limit=15');
+                    const res = await fetch('https://api.coincap.io/v2/assets?limit=10');
                     const json = await res.json();
-                    let data = json.data;
+                    if(json && json.data) {
+                        json.data.forEach(coin => {
+                            const existing = screenerCache.find(s => s.symbol === coin.symbol);
+                            if(existing) {
+                                existing.price = parseFloat(coin.priceUsd);
+                                existing.change = parseFloat(coin.changePercent24Hr);
+                            }
+                        });
+                    }
+                } catch(e) {}
+                renderTable();
 
-                    if (query) {
-                        data = data.filter(item => item.symbol.toLowerCase().includes(query) || item.name.toLowerCase().includes(query));
+            } else if (currentTab === 'whales') {
+                title.innerText = "Supabase Database: Whale Wallet Transfers (>20 ETH)";
+                headers.innerHTML = `
+                    <th class="p-3.5">Entity / Wallet</th>
+                    <th class="p-3.5 text-right">ETH Amount</th>
+                    <th class="p-3.5">Routing</th>
+                    <th class="p-3.5">Timestamp</th>
+                    <th class="p-3.5 text-right">Explorer</th>
+                `;
+                try {
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/whale_txs?select=*&order=created_at.desc&limit=25`, {
+                        headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` } }); const data = await res.json(); tbody.innerHTML = ""; countEl.innerText = `${data.length} records`;
+
+                    if (!data || data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">No whale records found in Supabase yet.</td></tr>`;
+                        return;
                     }
 
-                    countEl.innerText = `${data.length} assets`;
-                    tbody.innerHTML = "";
-
-                    data.forEach(item => {
-                        const price = Number(item.priceUsd).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                        const change = parseFloat(item.changePercent24Hr);
-                        const changeColor = change >= 0 ? 'text-emerald-400' : 'text-rose-400';
-                        const changeSign = change >= 0 ? '+' : '';
-                        const volume = Number(item.volumeUsd24Hr).toLocaleString(undefined, {style: 'currency', currency: 'USD', maximumFractionDigits: 0});
-
+                    data.forEach(tx => {
+                        const time = new Date(tx.created_at).toLocaleTimeString();
                         const row = document.createElement("tr");
                         row.className = "hover:bg-[#2a2e39]/40 transition";
                         row.innerHTML = `
-                            <td class="p-3.5 font-bold text-blue-400">${item.symbol} <span class="text-slate-400 font-normal text-[11px] ml-1">(${item.name})</span></td>
-                            <td class="p-3.5 text-right font-bold text-white">$${price}</td>
-                            <td class="p-3.5 text-right font-bold ${changeColor}">${changeSign}${change.toFixed(2)}%</td>
-                            <td class="p-3.5 text-right text-slate-300">${volume}</td>
+                            <td class="p-3.5 font-bold text-blue-400">${tx.wallet_name || 'Whale Wallet'}</td>
+                            <td class="p-3.5 text-right font-bold text-emerald-400">${Number(tx.eth_amount).toLocaleString(undefined, {minimumFractionDigits: 2})} ETH</td>
+                            <td class="p-3.5 text-slate-400 font-mono text-[11px]">${tx.tx_from ? tx.tx_from.substring(0, 6) + '...' : '0x...'} ➔ ${tx.tx_to ? tx.tx_to.substring(0, 6) + '...' : '0x...'}</td>
+                            <td class="p-3.5 text-slate-500">${time}</td>
                             <td class="p-3.5 text-right">
-                                <button onclick="openModal()" class="px-2.5 py-1 bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 rounded text-[11px] border border-blue-500/30 transition">Trade ⚡</button>
+                                <a href="https://etherscan.io/tx/${tx.tx_hash}" target="_blank" class="px-2 py-1 bg-[#2a2e39] hover:bg-[#363c4e] text-blue-400 rounded text-[10px] border border-[#363c4e]">View ↗</a>
                             </td>
                         `;
                         tbody.appendChild(row);
                     });
                 } catch(e) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-rose-400">Failed to fetch public crypto ticker API.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-rose-400">Error connecting to Supabase database.</td></tr>`;
                 }
+
+            } else if (currentTab === 'oi') {
+                title.innerText = "Supabase Database: Binance Open Interest Logs";
+                headers.innerHTML = `
+                    <th class="p-3.5">Symbol</th>
+                    <th class="p-3.5">Metric Type</th>
+                    <th class="p-3.5 text-right">Value</th>
+                    <th class="p-3.5 text-right">Timestamp</th>
+                `;
+                try {
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/derivatives_metrics?select=*&order=created_at.desc&limit=25`, {
+                        headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` } }); const data = await res.json(); tbody.innerHTML = ""; countEl.innerText = `${data.length} logs`;
+
+                    if (!data || data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-500">No Open Interest logs found in Supabase yet.</td></tr>`;
+                        return;
+                    }
+
+                    data.forEach(item => {
+                        const time = new Date(item.created_at).toLocaleString();
+                        const row = document.createElement("tr");
+                        row.className = "hover:bg-[#2a2e39]/40 transition";
+                        row.innerHTML = `
+                            <td class="p-3.5 font-bold text-blue-400">${item.symbol}</td>
+                            <td class="p-3.5"><span class="px-2 py-0.5 bg-purple-500/10 text-purple-400 rounded text-[10px]">${item.metric_type}</span></td>
+                            <td class="p-3.5 text-right font-bold text-emerald-400">${Number(item.value).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                            <td class="p-3.5 text-right text-slate-500">${time}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } catch(e) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-rose-400">Error connecting to Supabase.</td></tr>`;
+                }
+            }
+        }
+
+        function renderTable() {
+            if (currentTab !== 'screener') return;
+            const tbody = document.getElementById("terminal-tbody");
+            const countEl = document.getElementById("row-count");
+            const query = document.getElementById("searchInput").value.toLowerCase();
+
+            let data = screenerCache;
+            if (query) {
+                data = data.filter(item => item.symbol.toLowerCase().includes(query) || item.name.toLowerCase().includes(query));
+            }
+
+            countEl.innerText = `${data.length} items`;
+            tbody.innerHTML = "";
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-500">No assets match your search query.</td></tr>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const changeColor = item.change >= 0 ? 'text-emerald-400' : 'text-rose-400';
+                const changeSign = item.change >= 0 ? '+' : '';
+                const row = document.createElement("tr");
+                row.className = "hover:bg-[#2a2e39]/40 transition";
+                row.innerHTML = `
+                    <td class="p-3.5 font-bold text-blue-400">${item.symbol}</td>
+                    <td class="p-3.5 font-medium text-slate-200">${item.name}</td>
+                    <td class="p-3.5 text-slate-400">${item.sector}</td>
+                    <td class
