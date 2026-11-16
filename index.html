@@ -300,7 +300,8 @@
       try {
         const response = await fetch(queryUrl, {
           headers: {
-            "apikey": SUPABASE_ANON_KEY
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
           }
         });
 
