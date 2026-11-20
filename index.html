@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SUPRIM — Institutional Whale, Options & Insider Alert Terminal</title>
-  <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="icon" type="image/webp" href="logo.webp" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -181,7 +181,7 @@
   <!-- Navigation -->
   <nav class="navbar">
     <div class="brand">
-      <img src="logo.png" alt="SUPRIM Logo" style="height: 30px; width: auto; display: block; border-radius: 6px; object-fit: contain;" />
+      <img src="logo.webp" alt="SUPRIM Logo" style="height: 30px; width: auto; display: block; border-radius: 6px; object-fit: contain;" />
       <span class="live-dot"></span>
       <span style="font-weight: 900; letter-spacing: 1.8px;">SUPRIM</span>
       <span style="font-size: 11px; background: #172033; color: #60a5fa; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px; font-weight: 700;">TERMINAL</span>
@@ -264,138 +264,4 @@
           <button onclick="setFilter('ALL', this)" class="filter-btn active">All Signals</button>
           <button onclick="setFilter('CRYPTO WHALE', this)" class="filter-btn">🐋 Crypto Whales</button>
           <button onclick="setFilter('OPTIONS SWEEP', this)" class="filter-btn">🚨 Options Sweeps</button>
-          <button onclick="setFilter('INSIDER BUY', this)" class="filter-btn">👔 Insider Buys</button>
-        </div>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>Signal Type</th>
-              <th>Asset</th>
-              <th>Entity / Details</th>
-              <th style="text-align: right;">Est. Value</th>
-              <th style="text-align: right;">Proof</th>
-            </tr>
-          </thead>
-          <tbody id="suprim-feed-body">
-            <tr>
-              <td colspan="6" style="padding: 28px; text-align: center; color: #64748b;">Connecting to SUPRIM live signal stream...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-  </main>
-
-  <!-- VIP Checkout Modal -->
-  <div id="vip-modal" class="modal-backdrop" onclick="if(event.target===this) closeVipModal()">
-    <div class="modal-box">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="color: #fff; font-size: 18px;">⚡ SUPRIM VIP Pass — $29/mo</h3>
-        <button onclick="closeVipModal()" style="background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer;">✕</button>
-      </div>
-      <p style="font-size: 13px; color: #94a3b8; margin-top: 10px;">
-        Get instant 0-second Discord push notifications for whale inflows/outflows, options sweeps, and insider buys before the public feed updates.
-      </p>
-      <p style="font-size: 12px; color: #cbd5e1; margin-top: 14px; font-weight: 600;">
-        Send $29 USDT / USDC / ETH (ERC-20 / Base / Arbitrum) to:
-      </p>
-      <div class="wallet-box" id="vip-wallet">0x28C6c06298d514Db089934071355E5743bf21d60</div>
-      <div style="display: flex; gap: 10px;">
-        <button class="btn-primary" style="flex: 1;" onclick="copyWallet()">Copy Wallet Address</button>
-        <button class="btn-ghost" onclick="closeVipModal()">Close</button>
-      </div>
-      <p id="copy-status" style="font-size: 12px; color: #34d399; margin-top: 8px; text-align: center;"></p>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const SUPABASE_URL = "https://wvjizyneknggngsxvebx.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2aml6eW5la25nZ25nc3h2ZWJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ2ODI0MzgsImV4cCI6MjExMDI1ODQzOH0.AJKGZ76OFKPNiLNPsRy8TH3m-FZSOtDDPS--jkrgsUw";
-
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let currentCategory = "ALL";
-
-    function openVipModal() { document.getElementById("vip-modal").style.display = "flex"; }
-    function closeVipModal() { document.getElementById("vip-modal").style.display = "none"; }
-    function copyWallet() {
-      navigator.clipboard.writeText("0x28C6c06298d514Db089934071355E5743bf21d60");
-      document.getElementById("copy-status").innerText = "✓ Address copied! DM your Tx hash in Discord after sending.";
-    }
-
-    function setFilter(category, btn) {
-      currentCategory = category;
-      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      loadSuprimAlerts();
-    }
-
-    function getBadgeStyle(category) {
-      if (category === "CRYPTO WHALE") return "background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);";
-      if (category === "OPTIONS SWEEP") return "background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3);";
-      return "background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);";
-    }
-
-    async function loadSuprimAlerts() {
-      const tbody = document.getElementById("suprim-feed-body");
-
-      try {
-        let query = supabaseClient
-          .from("suprim_alerts")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(25);
-
-        if (currentCategory !== "ALL") {
-          query = query.eq("category", currentCategory);
-        }
-
-        const { data, error } = await query;
-
-        if (error) {
-          tbody.innerHTML = `<tr><td colspan="6" style="padding: 28px; text-align: center; color: #f87171;">Supabase Error: ${error.message}</td></tr>`;
-          return;
-        }
-
-        document.getElementById("last-updated").innerText = "Last synced: " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-        if (!data || data.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" style="padding: 28px; text-align: center; color: #94a3b8;">Connected to Supabase ✓ — Waiting for the next live whale, options, or insider trigger...</td></tr>`;
-          return;
-        }
-
-        tbody.innerHTML = data.map(row => {
-          const timeStr = new Date(row.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          const usdFormatted = "$" + Number(row.usd_value).toLocaleString(undefined, { maximumFractionDigits: 0 });
-          return `
-            <tr>
-              <td style="color: #64748b; white-space: nowrap;">${timeStr}</td>
-              <td style="white-space: nowrap;">
-                <span style="padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; ${getBadgeStyle(row.category)}">${row.category}</span>
-              </td>
-              <td style="font-weight: 700; color: #ffffff;">${row.asset}</td>
-              <td>
-                <div style="font-weight: 600; color: #e2e8f0;">${row.headline}</div>
-                <div style="font-size: 12px; color: #64748b; margin-top: 2px;">${row.details || ""}</div>
-              </td>
-              <td style="text-align: right; font-weight: 700; color: #34d399; white-space: nowrap;">${usdFormatted}</td>
-              <td style="text-align: right; white-space: nowrap;">
-                ${row.source_url ? `<a href="${row.source_url}" target="_blank" style="color: #60a5fa; font-weight: 600;">Verify ↗</a>` : "-"}
-              </td>
-            </tr>
-          `;
-        }).join("");
-      } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="6" style="padding: 28px; text-align: center; color: #f87171;">Connection Error: ${err.message}</td></tr>`;
-      }
-    }
-
-    loadSuprimAlerts();
-    setInterval(loadSuprimAlerts, 30000);
-  </script>
-</body>
-</html>
+          <button onclick
